@@ -472,7 +472,7 @@ Font families: `display` (Unbounded), `sans` (DM Sans), `mono` (Space Mono), `me
 
 ### `tsconfig.json`
 
-Excludes `temporal reference/` so the Vite design prototype does not participate in Next.js type-checking or builds.
+Standard Next.js TypeScript configuration with path alias `@/*` → project root.
 
 ### `.env.local`
 
@@ -482,7 +482,7 @@ Runtime secrets and provider selection. Never committed (gitignored).
 
 ## Design system
 
-**Direction:** Ultra-modern dark editorial — graphite background, bronze accents, stacked Unbounded headlines, Space Mono labels. Based on the reference in `temporal reference/Ultra Modern App Design/`, implemented with Tailwind + CSS keyframe animations (no framer-motion).
+**Direction:** Ultra-modern dark editorial — graphite background, bronze accents, stacked Unbounded headlines, Space Mono labels. Implemented with Tailwind + CSS keyframe animations (no framer-motion).
 
 | Element | Treatment |
 |---------|-----------|

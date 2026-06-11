@@ -29,9 +29,6 @@ yarn-error.log*
 # database
 companion.db
 
-# reference prototype dependencies (if installed locally)
-temporal reference/**/node_modules
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts

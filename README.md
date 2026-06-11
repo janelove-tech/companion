@@ -85,8 +85,6 @@ npm run dev
 
 **Intentionally excluded:** Prisma, ORMs, LangChain, vector DBs, embeddings, auth, Docker, UI component libraries (shadcn, framer-motion, etc.).
 
-**Design reference:** `temporal reference/Ultra Modern App Design/` — Vite prototype used as visual/flow reference; not part of the Next.js build (excluded in `tsconfig.json`).
-
 ---
 
 ## Project structure
@@ -107,7 +105,6 @@ companion/
 │   ├── context.ts              # Weather + time context builder
 │   ├── similarity.ts           # TF-IDF duplicate detection
 │   └── llm.ts                  # LLM provider abstraction (single entry)
-├── temporal reference/         # Design prototype (not compiled by Next.js)
 ├── companion.db                # SQLite database (created at runtime)
 ├── .env.example
 ├── next.config.mjs             # better-sqlite3 + Unsplash image remotePatterns

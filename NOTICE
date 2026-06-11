@@ -1,0 +1,28 @@
+Companion — Third-Party Notices
+================================
+
+This application includes or depends on the following third-party materials.
+See LICENSE for the license terms of Companion's own source code.
+
+Fonts
+-----
+- Unbounded, DM Sans, Space Mono, and Cormorant Garamond via Google Fonts
+  https://fonts.google.com/
+  Licensed under the SIL Open Font License 1.1
+
+Images
+------
+- Editorial hero photograph via Unsplash
+  https://unsplash.com/photos/photo-1518611012118-696072aa579a
+  Unsplash License: https://unsplash.com/license
+
+External services (not bundled)
+-------------------------------
+- Open-Meteo API for Accra weather data
+  https://open-meteo.com/
+- Ollama, Anthropic, and/or OpenAI when configured as LLM providers
+
+Open-source dependencies
+------------------------
+Runtime and development dependencies are listed in package.json and
+package-lock.json, each governed by its respective license (primarily MIT).

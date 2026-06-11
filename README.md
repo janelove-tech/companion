@@ -141,4 +141,6 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete breakdown.
 
 ## License
 
-Private project — local use.
+Copyright (c) 2026 [janelove-tech](https://github.com/janelove-tech). Released under the [MIT License](LICENSE).
+
+Third-party fonts, images, and services are credited in [NOTICE](NOTICE).

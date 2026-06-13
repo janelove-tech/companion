@@ -18,9 +18,15 @@ interface WeatherContext {
   mood: string;
 }
 
+interface GeoCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
 interface AppContext {
   day: string;
   timeOfDay: string;
+  location: string;
   weather: WeatherContext;
   recentThemes: string[];
 }
@@ -250,7 +256,7 @@ function EditorialPanel({ historyCount }: { historyCount: number }) {
       <div className="absolute bottom-9 right-8 text-right font-mono text-[9px] leading-[1.8] tracking-[0.2em] text-champagne/35">
         COMPANION
         <br />
-        V1.0 · ACCRA
+        V1.0
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 grid grid-cols-3 border-t border-subtle">
@@ -293,6 +299,8 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [messagesSent, setMessagesSent] = useState(0);
+  const [userCoords, setUserCoords] = useState<GeoCoordinates | null>(null);
 
   const panelOpen = historyOpen || showOnboarding || showSettings;
 
@@ -333,10 +341,13 @@ export default function Home() {
 
   const fetchHistory = useCallback(async () => {
     try {
-      const res = await fetch("/api/save");
+      const res = await fetch("/api/save", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setHistory(data.messages ?? []);
+        if (typeof data.total === "number") {
+          setMessagesSent(data.total);
+        }
       }
     } catch {
       // non-critical
@@ -347,6 +358,29 @@ export default function Home() {
     fetchSettings();
     fetchHistory();
   }, [fetchSettings, fetchHistory]);
+
+  useEffect(() => {
+    if (!settingsLoaded || typeof navigator === "undefined" || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserCoords({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      () => {
+        // Permission denied or unavailable — server falls back to default area
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 15000,
+        maximumAge: 900000,
+      }
+    );
+  }, [settingsLoaded]);
 
   const saveSettings = async (gender: RecipientGender, context: string) => {
     setSavingSettings(true);
@@ -391,7 +425,11 @@ export default function Home() {
     setCopied(false);
 
     try {
-      const res = await fetch("/api/generate", { method: "POST" });
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userCoords ?? {}),
+      });
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
@@ -414,17 +452,33 @@ export default function Home() {
 
     try {
       await navigator.clipboard.writeText(message);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Failed to copy to clipboard");
+      return;
+    }
 
-      await fetch("/api/save", {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+
+    try {
+      const res = await fetch("/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message_text: message, theme, tone }),
+        cache: "no-store",
       });
-      fetchHistory();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      if (Array.isArray(data.messages)) {
+        setHistory(data.messages);
+      }
+      if (typeof data.total === "number") {
+        setMessagesSent(data.total);
+      } else {
+        await fetchHistory();
+      }
     } catch {
-      setError("Failed to copy to clipboard");
+      setError("Copied, but failed to update message history");
     }
   };
 
@@ -527,7 +581,7 @@ export default function Home() {
               <div className="animate-fade-up flex flex-col gap-6">
                 {context && (
                   <div className="inline-flex w-fit items-center gap-2 border border-medium px-3 py-1.5 font-mono text-[11px] tracking-[0.08em] text-champagne">
-                    {weatherLabel(context)} · ACCRA · {getDayShort(context.day)}
+                    {weatherLabel(context)} · {context.location.toUpperCase()} · {getDayShort(context.day)}
                   </div>
                 )}
 
@@ -597,7 +651,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT */}
-        <EditorialPanel historyCount={history.length} />
+        <EditorialPanel historyCount={messagesSent} />
       </div>
 
       {/* HISTORY */}

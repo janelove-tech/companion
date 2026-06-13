@@ -117,7 +117,7 @@ companion/
 ## How it works (summary)
 
 1. **First visit** — User sets recipient gender (Her/Him) and optional personal context. Saved to SQLite `settings` table.
-2. **Generate** — `POST /api/generate` builds live context (Accra weather, time of day, recent themes), merges recipient settings into a prompt, calls `generateMessage()` in `lib/llm.ts`, parses JSON, checks similarity against history, returns the message.
+2. **Generate** — `POST /api/generate` builds live context (local weather from browser coordinates when available, otherwise Ashaley Botwe, plus time of day and recent themes), merges recipient settings into a prompt, calls `generateMessage()` in `lib/llm.ts`, parses JSON, checks similarity against history, returns the message.
 3. **Copy** — User copies to clipboard; client silently `POST /api/save` to persist the message.
 4. **History** — `GET /api/save` returns the last 7 saved messages for the slide-over panel.
 

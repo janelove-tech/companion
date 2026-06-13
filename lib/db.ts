@@ -47,6 +47,14 @@ export function getRecentMessages(limit: number): Message[] {
   return stmt.all(limit) as Message[];
 }
 
+export function getMessageCount(): number {
+  const database = getDb();
+  const row = database
+    .prepare(`SELECT COUNT(*) as count FROM messages`)
+    .get() as { count: number };
+  return row.count;
+}
+
 export function saveMessage(
   message_text: string,
   theme: string,

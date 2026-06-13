@@ -18,8 +18,11 @@ Images
 
 External services (not bundled)
 -------------------------------
-- Open-Meteo API for Accra weather data
+- Open-Meteo API for local weather by coordinates
   https://open-meteo.com/
+- OpenStreetMap Nominatim for reverse geocoding (place names)
+  https://nominatim.openstreetmap.org/
+  © OpenStreetMap contributors — https://www.openstreetmap.org/copyright
 - Ollama, Anthropic, and/or OpenAI when configured as LLM providers
 
 Open-source dependencies

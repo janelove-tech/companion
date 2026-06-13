@@ -36,7 +36,7 @@ This stays on your device and quietly informs every message from then on. You ca
 When you generate a message, Companion considers the moment you're in:
 
 - The day and time of day
-- The weather in Accra
+- The weather where you are (via browser location, when allowed)
 - Themes you've used recently (so it doesn't repeat itself)
 
 The result should feel timely and fresh — like something you'd actually say today, not a template you sent last Tuesday.
@@ -85,7 +85,7 @@ The headline gives way to faded **WRITING SOMETHING REAL...** text and three pul
 
 Your message replaces the hero headline on the **left panel**. It reads like editorial copy — generous line spacing, calm DM Sans typography, no heavy card chrome.
 
-Above the message, a small capsule shows live context — something like *RAINY · 26°C · ACCRA · THU*.
+Above the message, a small capsule shows live context — something like *RAINY · 26°C · YOUR AREA · THU* (the place name comes from your location when the browser allows it).
 
 Theme and tone appear as monospace tags beneath the message (bronze fill for theme, champagne outline for tone). **Copy** and **Regenerate** sit below as understated buttons. The primary CTA becomes **New Message** when you're viewing a result.
 

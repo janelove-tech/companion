@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRecentMessages, saveMessage } from "@/lib/db";
+import { getMessageCount, getRecentMessages, saveMessage } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+};
 
 export async function GET() {
-  const messages = getRecentMessages(7);
-  return NextResponse.json({ messages });
+  return NextResponse.json(
+    {
+      messages: getRecentMessages(7),
+      total: getMessageCount(),
+    },
+    { headers: NO_STORE_HEADERS }
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -18,13 +29,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    saveMessage(
-      message_text,
-      theme ?? "",
-      tone ?? ""
-    );
+    saveMessage(message_text, theme ?? "", tone ?? "");
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json(
+      {
+        ok: true,
+        messages: getRecentMessages(7),
+        total: getMessageCount(),
+      },
+      { headers: NO_STORE_HEADERS }
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Save failed";
     return NextResponse.json({ error: message }, { status: 500 });

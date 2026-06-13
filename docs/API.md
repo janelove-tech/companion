@@ -27,8 +27,21 @@ Generates one thoughtful message using the full pipeline: context → prompt →
 ### Request
 
 - **Method:** `POST`
-- **Body:** None
-- **Headers:** None required
+- **Body:** Optional JSON with the user's coordinates from browser geolocation
+
+```json
+{
+  "latitude": 5.676,
+  "longitude": -0.136
+}
+```
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `latitude` | No | number | `-90` to `90`. Omit or send without valid coords to use the default area (Ashaley Botwe). |
+| `longitude` | No | number | `-180` to `180`. Must be sent together with `latitude`. |
+
+When coordinates are provided, weather is fetched for that point via Open-Meteo and a place name is resolved via OpenStreetMap Nominatim. Day and time-of-day use the timezone for that location.
 
 ### Prerequisites
 
@@ -44,6 +57,7 @@ Recipient settings must exist (`POST /api/settings` completed). Otherwise return
   "context": {
     "day": "Thursday",
     "timeOfDay": "afternoon",
+    "location": "Ashaley Botwe",
     "weather": {
       "condition": "partly cloudy",
       "temp": "28°C",
@@ -76,7 +90,9 @@ When `tooSimilar` is `true`, the message is still returned — the UI shows a wa
 ### Example
 
 ```bash
-curl -X POST http://localhost:3000/api/generate
+curl -X POST http://localhost:3000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"latitude":5.676,"longitude":-0.136}'
 ```
 
 ---
@@ -145,9 +161,20 @@ Persists a message when the user copies it to the clipboard.
 
 ```json
 {
-  "ok": true
+  "ok": true,
+  "messages": [
+    {
+      "id": 3,
+      "sent_at": "2026-06-11T17:30:00.000Z",
+      "message_text": "Thinking about you this afternoon…",
+      "theme": "gratitude",
+      "tone": "warm"
+    }
+  ]
 }
 ```
+
+Returns the updated history (last 7 messages) so the client can refresh the count without a separate GET.
 
 ### Error responses
 
@@ -299,6 +326,7 @@ interface Message {
 interface AppContext {
   day: string;
   timeOfDay: string;
+  location: string;
   weather: { condition: string; temp: string; mood: string };
   recentThemes: string[];
 }

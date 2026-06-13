@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { buildContext, AppContext } from "@/lib/context";
+import { buildContext, AppContext, isValidCoordinates, GeoCoordinates } from "@/lib/context";
 import { getRecentMessages, getSettings, RecipientSettings } from "@/lib/db";
 import { generateMessage } from "@/lib/llm";
 import { checkSimilarity } from "@/lib/similarity";
+
+export const dynamic = "force-dynamic";
 
 interface GeneratedMessage {
   message: string;
@@ -40,7 +42,7 @@ Today's context:
 
 - Day: ${context.day}
 - Time: ${context.timeOfDay}
-- Weather in Accra: ${context.weather.condition}, ${context.weather.temp}, feels ${context.weather.mood}
+- Weather in ${context.location}: ${context.weather.condition}, ${context.weather.temp}, feels ${context.weather.mood}
 - Recent themes used (avoid repeating these): ${themesList}
 
 Rules:
@@ -136,7 +138,7 @@ async function generateAndParse(
   return parseGeneratedResponse(raw);
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const settings = getSettings();
     if (!settings) {
@@ -146,7 +148,17 @@ export async function POST() {
       );
     }
 
-    const context = await buildContext();
+    let coordinates: GeoCoordinates | undefined;
+    try {
+      const body = await request.json();
+      if (isValidCoordinates(body)) {
+        coordinates = body;
+      }
+    } catch {
+      // Empty or non-JSON body — use default location
+    }
+
+    const context = await buildContext(coordinates);
     const recent = getRecentMessages(10);
     const recentTexts = recent.map((m) => m.message_text);
     const systemPrompt = buildSystemPrompt(context, settings);

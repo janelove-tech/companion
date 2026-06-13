@@ -181,6 +181,7 @@ Builds the **situational context** injected into every generation prompt.
 {
   day: string;           // e.g. "Thursday" (Africa/Accra timezone)
   timeOfDay: string;     // "morning" | "afternoon" | "evening" | "night"
+  location: string;      // "Ashaley Botwe"
   weather: {
     condition: string;   // human-readable from WMO weather code
     temp: string;        // e.g. "28°C"
@@ -190,7 +191,7 @@ Builds the **situational context** injected into every generation prompt.
 }
 ```
 
-**Weather source:** [Open-Meteo](https://open-meteo.com/) forecast API for Accra (`5.6037, -0.1870`). Results are cached by Next.js for 30 minutes (`revalidate: 1800`). On failure, falls back to `partly cloudy / 28°C / quiet`.
+**Weather source:** [Open-Meteo](https://open-meteo.com/) forecast API for the user's coordinates (`timezone=auto`). If the browser does not share a location, falls back to Ashaley Botwe, Ghana (`5.6760, -0.1360`). Place names come from [OpenStreetMap Nominatim](https://nominatim.openstreetmap.org/) when coordinates are provided. Results are cached by Next.js for 30 minutes (`revalidate: 1800`). On failure, falls back to `partly cloudy / 28°C / quiet`.
 
 **WMO code mapping:** Raw numeric `weathercode` from Open-Meteo is translated to phrases like `rainy`, `overcast`, `clear sky`. A derived `mood` adjective guides the LLM tone without being quoted literally.
 
@@ -326,6 +327,8 @@ stateDiagram-v2
 
 | Feature | Implementation |
 |---------|----------------|
+| User location | Browser `navigator.geolocation` on load; coords sent with `POST /api/generate` |
+| Location fallback | Ashaley Botwe when permission denied or geolocation unavailable |
 | First-time setup | Centered overlay modal (`GET STARTED`) over dark app shell |
 | Settings | Same form in centered modal; dismissible via backdrop or Escape |
 | History | Full-height slide-over from right (`SENT MESSAGES`) |
@@ -381,7 +384,7 @@ The prompt in `app/api/generate/route.ts` (`buildSystemPrompt`) combines three c
 ### 2. Situational context (from `buildContext()`)
 
 - Day of week, time of day
-- Accra weather condition, temperature, mood
+- Ashaley Botwe weather condition, temperature, mood
 - Recent themes to avoid
 
 ### 3. Generation rules
@@ -439,7 +442,8 @@ The UI shows a soft warning when `tooSimilar` is true but still displays the mes
 | Service | Used by | Purpose | Offline fallback |
 |---------|---------|---------|------------------|
 | Ollama (`localhost:11434`) | `lib/llm.ts` | Message generation | Error thrown — user must start Ollama |
-| Open-Meteo | `lib/context.ts` | Accra weather | Static `partly cloudy / 28°C` |
+| Open-Meteo | `lib/context.ts` | Local weather by coordinates | Static `partly cloudy / 28°C` |
+| Nominatim | `lib/context.ts` | Reverse geocoding for place name | Default area name |
 | Anthropic API | `lib/llm.ts` | Optional LLM | Error if key missing |
 | OpenAI API | `lib/llm.ts` | Optional LLM | Error if key missing |
 
@@ -487,7 +491,7 @@ Runtime secrets and provider selection. Never committed (gitignored).
 | Element | Treatment |
 |---------|-----------|
 | Headline | Stacked "WRITE / WHAT / YOU / TRULY / FEEL." — TRULY in bronze |
-| Weather capsule | Monospace border pill: condition · temp · ACCRA · day |
+| Weather capsule | Monospace border pill: condition · temp · ASHALEY BOTWE · day |
 | Message | Left panel, DM Sans, border-top rule, theme/tone tags below |
 | Right panel | Unsplash editorial photo at 45% opacity, dual graphite gradients |
 | Stat strip | Messages sent count, "no data sent", "device only" |
